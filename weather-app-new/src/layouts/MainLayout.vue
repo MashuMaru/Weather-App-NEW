@@ -1,107 +1,85 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
-      <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="leftDrawerOpen = !leftDrawerOpen"
-        />
+  <q-layout class="flex column" view="lHh Lpr lFf">
+    <div class="col text-center">
+      <div v-if="entered">
+        <InputSearch />
+        <div class="col text-center">
+          <h4 class="location">Bournemouth</h4>
+          <h3 class="temp">8&deg;C</h3>
+          <h5 class="weather-desc">Cloudy</h5>
+          <img
+            class="weather-img"
+            src="../css/images/cloud.png"
+            alt="weather"
+          />
+        </div>
+      </div>
+      <div v-else class="main-title">
+        <h2 class="text-weight-light">
+          Weather<br />App
+          <span class="material-icons">
+            thermostat
+          </span>
+        </h2>
+      </div>
+    </div>
 
-        <q-toolbar-title>
-          Quasar App
-        </q-toolbar-title>
-
-        <div>Quasar v{{ $q.version }}</div>
-      </q-toolbar>
-    </q-header>
-
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-      content-class="bg-grey-1"
-    >
-      <q-list>
-        <q-item-label
-          header
-          class="text-grey-8"
-        >
-          Essential Links
-        </q-item-label>
-        <EssentialLink
-          v-for="link in essentialLinks"
-          :key="link.title"
-          v-bind="link"
-        />
-      </q-list>
-    </q-drawer>
-
-    <q-page-container>
-      <router-view />
-    </q-page-container>
+    <q-btn class="col location-btn" flat v-on:click="enteredClick">
+      <q-icon left size="3em" name="my_location" />
+      <div>Find my location</div>
+    </q-btn>
   </q-layout>
 </template>
 
 <script>
-import EssentialLink from 'components/EssentialLink.vue'
-
-const linksData = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
-];
-
+import InputSearch from "./InputSearch.vue";
 export default {
-  name: 'MainLayout',
-  components: { EssentialLink },
-  data () {
+  components: { InputSearch },
+  name: "MainLayout",
+  data() {
     return {
-      leftDrawerOpen: false,
-      essentialLinks: linksData
+      entered: false
+    };
+  },
+  methods: {
+    enteredClick() {
+      this.entered = true;
     }
   }
-}
+};
 </script>
+
+<style lang="sass" scoped>
+.q-layout
+  background: #808080
+  background: -webkit-linear-gradient(to bottom, #3fada8, #808080)
+  background: linear-gradient(to bottom, #3fada8, #808080)
+  position: relative
+
+.input
+  padding: 25px
+  padding-right: 50px
+
+.main-title
+  height: 50px
+  padding-top: 100px
+  position: relative
+
+
+.col
+  height: 100%
+  width: 100%
+
+.q-icon
+  cursor: pointer
+
+.weather-img
+  position: relative
+  width: 100px
+
+.temp
+  margin: -20px
+
+.location-btn
+  bottom: 0
+</style>
