@@ -1,17 +1,41 @@
 <template>
-  <q-layout class="flex column" view="lHh Lpr lFf">
+  <q-layout class="flex column" v-bind:class="bgClass" view="lHh Lpr lFf">
     <div class="col text-center">
       <div v-if="entered">
-        <InputSearch />
+        <div class="col text-center input">
+          <q-input
+            color="black"
+            v-model="search"
+            label="Search"
+            v-on:keyup.enter="getWeatherBySearch"
+          >
+            <!-- v-model="search" -->
+            <template v-slot:before>
+              <q-icon name="locaton_on" />
+            </template>
+            <template v-slot:append>
+              <q-btn
+                round
+                dense
+                flat
+                icon="search"
+                v-on:click="getWeatherBySearch"
+              />
+            </template>
+          </q-input>
+        </div>
         <div class="col text-center">
-          <h4 class="location">Bournemouth</h4>
-          <h3 class="temp">8&deg;C</h3>
-          <h5 class="weather-desc">Cloudy</h5>
-          <img
-            class="weather-img"
-            src="../css/images/cloud.png"
-            alt="weather"
-          />
+          <div v-if="locationOff">
+            <p>Location service is turned off.<br>Try searching instead.</p>
+          </div>
+          <div v-else>
+            <h4 class="location">{{ location }}</h4>
+            <h3 class="temp">{{ temp }}&deg;C</h3>
+            <h5 class="weather-desc">{{ weatherDesc }}</h5>
+            <img class="weather-img" v-bind:src="imgUrl" alt="weather" />
+            <h6 class="h6">Time Zone:</h6>
+            <p>{{ timeInfo }}</p>
+          </div>
         </div>
       </div>
       <div v-else class="main-title">
@@ -32,18 +56,113 @@
 </template>
 
 <script>
-import InputSearch from "./InputSearch.vue";
 export default {
-  components: { InputSearch },
   name: "MainLayout",
   data() {
     return {
-      entered: false
+      search: "",
+      entered: false,
+      locationOff: null,
+      lat: null,
+      lon: null,
+      temp: "",
+      weatherDesc: "",
+      location: "",
+      apiUrl: "https://api.openweathermap.org/data/2.5/weather",
+
+      weatherData: null,
+      imgCode: null,
+      imgUrl: null,
+      timeZone: null,
+      timeInfo: null
     };
+  },
+  computed: {
+    bgClass() {
+      if (this.weatherData) {
+        if (this.imgCode.endsWith("n")) {
+          return "bg-night";
+        } else {
+          return "bg-day";
+        }
+      } else {
+        return null;
+      }
+    }
   },
   methods: {
     enteredClick() {
-      this.entered = true;
+      this.$q.loading.show();
+      navigator.geolocation.watchPosition(
+        position => {
+          navigator.geolocation.getCurrentPosition(position => {
+            this.lat = position.coords.latitude;
+            this.lon = position.coords.longitude;
+            this.entered = true;
+            this.getWeatherByCoords();
+          });
+        },
+        error => {
+          if (error.code == error.PERMISSION_DENIED) 
+          this.$q.loading.hide();
+          this.locationOff = true;
+          this.entered = true;
+        }
+      );
+      // navigator.geolocation.getCurrentPosition(position => {
+      //   this.lat = position.coords.latitude;
+      //   this.lon = position.coords.longitude;
+      //   this.entered = true;
+      //   this.getWeatherByCoords();
+      // });
+    },
+    getWeatherByCoords() {
+      this.$q.loading.show();
+      this.$axios(
+        `${this.apiUrl}?lat=${this.lat}&lon=${this.lon}&appid=${this.apiKey}&units=metric`
+      ).then(response => {
+        this.weatherData = response.data;
+        this.location = this.weatherData.name;
+        this.weatherDesc = this.weatherData.weather[0].description;
+        this.temp = Math.round(this.weatherData.main.temp);
+        this.timeZone = this.weatherData.timezone;
+        const time = new Date();
+        const localTime = time.getTime();
+        const localOffset = time.getTimezoneOffset() * 60000;
+        const utc = localTime + localOffset;
+        const searchedLocationTime = utc + 1000 * this.timeZone;
+        const locationTime = new Date(searchedLocationTime);
+        this.timeInfo = locationTime;
+        this.imgCode = this.weatherData.weather[0].icon;
+        this.imgUrl = `http://openweathermap.org/img/wn/${this.imgCode}@2x.png`;
+        this.$q.loading.hide();
+        this.entered = true;
+      });
+    },
+    getWeatherBySearch() {
+      this.locationOff = false;
+      this.$axios(
+        `https://api.openweathermap.org/data/2.5/weather?q=${this.search}&appid=${this.apiKey}&units=metric`
+      ).then(response => {
+        this.weatherData = response.data;
+        this.location = this.weatherData.name;
+        this.weatherDesc = this.weatherData.weather[0].description;
+        this.temp = Math.round(this.weatherData.main.temp);
+        this.imgCode = this.weatherData.weather[0].icon;
+        this.imgUrl = `http://openweathermap.org/img/wn/${this.imgCode}@2x.png`;
+        this.timeZone = this.weatherData.timezone;
+        const time = new Date();
+        const localTime = time.getTime();
+        const localOffset = time.getTimezoneOffset() * 60000;
+        const utc = localTime + localOffset;
+        // console.log(localOffset);
+        const searchedLocationTime = utc + 1000 * this.timeZone;
+        // console.log("searched location: " + searchedLocationTime);
+        const locationTime = new Date(searchedLocationTime);
+        // console.log("time" + locationTime);
+        this.timeInfo = locationTime;
+        this.search = "";
+      });
     }
   }
 };
@@ -51,10 +170,21 @@ export default {
 
 <style lang="sass" scoped>
 .q-layout
-  background: #808080
-  background: -webkit-linear-gradient(to bottom, #3fada8, #808080)
-  background: linear-gradient(to bottom, #3fada8, #808080)
-  position: relative
+  background: #134E5E
+  background: -webkit-linear-gradient(to top, #71B280, #134E5E)
+  background: linear-gradient(to top, #71B280, #134E5E)
+  &.bg-night
+    background: #283048
+    background: -webkit-linear-gradient(to top, #283048, #859398)
+    background: linear-gradient(to top, #283048, #859398)
+
+  &.bg-day
+    background: #FF5F6D
+    background: -webkit-linear-gradient(to bottom, #FFC371, #FF5F6D)
+    background: linear-gradient(to bottom, #FFC371, #FF5F6D)
+
+.weather-desc
+  margin-bottom: 5px
 
 .input
   padding: 25px
@@ -75,11 +205,17 @@ export default {
 
 .weather-img
   position: relative
-  width: 100px
+  width: 150px
+  margin: 5px
 
 .temp
-  margin: -20px
+  margin: -30px 0
 
 .location-btn
+  position: fixed
+  height: 150px
   bottom: 0
+
+.h6
+  margin: 0
 </style>
