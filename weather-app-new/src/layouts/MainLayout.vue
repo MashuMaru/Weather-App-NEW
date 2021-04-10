@@ -31,7 +31,9 @@
           <div v-if="error">
             <p>There seems to be an error.<br />Try again.</p>
           </div>
-          <div v-if="requestSent || !locationOff">
+          <p v-if="isLoading">Loading...</p>
+          <div v-if="!isLoading && !locationOff">
+            <!-- requestSent || !locationOff && ! -->
             <h4 class="location">{{ location }}</h4>
             <h3 class="temp">{{ temp }}&deg;C</h3>
             <h5 class="weather-desc">{{ weatherDesc }}</h5>
@@ -63,6 +65,7 @@ export default {
   name: "MainLayout",
   data() {
     return {
+      isLoading: null,
       requestSent: null,
       search: "",
       entered: false,
@@ -206,6 +209,7 @@ export default {
       this.error = false;
       this.requestSent = true;
       this.locationOff = false;
+      this.isLoading = true;
       this.$axios(
         `https://api.openweathermap.org/data/2.5/weather?q=${this.search}&appid=${this.apiKey}&units=metric`,
         { timeout: 2000 }
@@ -217,15 +221,16 @@ export default {
           this.temp = Math.round(this.weatherData.main.temp);
           this.imgCode = this.weatherData.weather[0].icon;
           this.imgUrl = `http://openweathermap.org/img/wn/${this.imgCode}@2x.png`;
-          // this.timeZone = this.weatherData.timezone;
-          // const time = new Date();
-          // const localTime = time.getTime();
-          // const localOffset = time.getTimezoneOffset() * 60000;
-          // const utc = localTime + localOffset;
-          // const searchedLocationTime = utc + 1000 * this.timeZone;
-          // const locationTime = new Date(searchedLocationTime);
-          // this.timeInfo = locationTime;
+          this.timeZone = this.weatherData.timezone;
+          const time = new Date();
+          const localTime = time.getTime();
+          const localOffset = time.getTimezoneOffset() * 60000;
+          const utc = localTime + localOffset;
+          const searchedLocationTime = utc + 1000 * this.timeZone;
+          const locationTime = new Date(searchedLocationTime);
+          this.timeInfo = locationTime;
           this.search = "";
+          this.isLoading = false;
         })
         .catch(error => {
           if (error.response) {
