@@ -99,12 +99,11 @@ export default {
     enterGetCoords() {
       navigator.geolocation.clearWatch(1);
       this.$q.loading.show({
-        message: "Retrieving your location..."
+        message: "Retrieving location data..."
       });
       console.log("Getting lat and lon. (1st script)");
       navigator.geolocation.watchPosition(
         position => {
-          console.log("i'm tracking you!");
           this.lat = position.coords.latitude;
           this.lon = position.coords.longitude;
           this.entered = true;
@@ -112,7 +111,6 @@ export default {
         },
         error => {
           if (error.code == error.PERMISSION_DENIED)
-            console.log("you denied me :-(");
           this.$q.loading.hide();
           this.entered = true;
           this.locationOff = true;
