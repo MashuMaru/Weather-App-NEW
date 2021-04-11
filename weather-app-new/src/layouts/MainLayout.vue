@@ -31,9 +31,7 @@
           <div v-if="error">
             <p>There seems to be an error.<br />Try again.</p>
           </div>
-          <p v-if="isLoading">Loading...</p>
-          <div v-if="!isLoading && !locationOff">
-            <!-- requestSent || !locationOff && ! -->
+          <div v-if="!locationOff">
             <h4 class="location">{{ location }}</h4>
             <h3 class="temp">{{ temp }}&deg;C</h3>
             <h5 class="weather-desc">{{ weatherDesc }}</h5>
@@ -53,7 +51,7 @@
       </div>
     </div>
 
-    <q-btn class="col location-btn" flat v-on:click="getWeatherByCoords">
+    <q-btn class="col location-btn" flat v-on:click="enterGetCoords">
       <q-icon left size="3em" name="my_location" />
       <div>Find my location</div>
     </q-btn>
@@ -65,7 +63,6 @@ export default {
   name: "MainLayout",
   data() {
     return {
-      isLoading: null,
       requestSent: null,
       search: "",
       entered: false,
@@ -99,62 +96,103 @@ export default {
     }
   },
   methods: {
-    getWeatherByCoords() {
-      this.$q.loading.show();
+    enterGetCoords() {
+      navigator.geolocation.clearWatch(1);
+      this.$q.loading.show({
+        message: "Retreiving your location..."
+      });
+      console.log("Getting lat and lon. (1st script)");
       navigator.geolocation.watchPosition(
         position => {
-          navigator.geolocation.getCurrentPosition(position => {
-            this.lat = position.coords.latitude;
-            this.lon = position.coords.longitude;
-            this.$axios(
-              `${this.apiUrl}?lat=${this.lat}&lon=${this.lon}&appid=${this.apiKey}&units=metric`
-            )
-              .then(response => {
-                this.weatherData = response.data;
-                this.location = this.weatherData.name;
-                this.weatherDesc = this.weatherData.weather[0].description;
-                this.temp = Math.round(this.weatherData.main.temp);
-                this.timeZone = this.weatherData.timezone;
-                const time = new Date();
-                const localTime = time.getTime();
-                const localOffset = time.getTimezoneOffset() * 60000;
-                const utc = localTime + localOffset;
-                const searchedLocationTime = utc + 1000 * this.timeZone;
-                const locationTime = new Date(searchedLocationTime);
-                this.timeInfo = locationTime;
-                this.imgCode = this.weatherData.weather[0].icon;
-                this.imgUrl = `http://openweathermap.org/img/wn/${this.imgCode}@2x.png`;
-                this.$q.loading.hide();
-                this.entered = true;
-              })
-              .catch(error => {
-                if (error.response) {
-                  console.log("1 " + error.response.data);
-                  console.log("2 " + error.response.status);
-                  console.log("3 " + error.response.headers);
-                  this.error = true;
-                  this.entered = true;
-                } else if (error.request) {
-                  this.error = true;
-                  console.log("4 " + error.request);
-                } else {
-                  this.error = true;
-                  console.log("Error", error.message);
-                }
-                this.error = true;
-                this.entered = true;
-                console.log("5 " + error.config);
-              });
-          });
+          console.log("i'm tracking you!");
+          this.lat = position.coords.latitude;
+          this.lon = position.coords.longitude;
+          this.entered = true;
+          this.getWeatherByCoords();
         },
         error => {
-          if (error.code == error.PERMISSION_DENIED) 
-          this.$q.loading.hide();
-          this.locationOff = true;
-          this.requestSent = false;
-          this.entered = true;
+          if (error.code == error.PERMISSION_DENIED)
+            console.log("you denied me :-(");
+            this.$q.loading.hide();
+            this.entered = true;
+            this.locationOff = true;
         }
       );
+      // this.$q.loading.show({
+      //   message: "Retreiving your position..."
+      // });
+      // navigator.geolocation.getCurrentPosition(position => {
+      //   this.lat = position.coords.latitude;
+      //   this.lon = position.coords.longitude;
+      //   this.entered = true;
+      //   this.getWeatherByCoords();
+      // })
+
+      // this.$q.loading.show({
+      //   message: "Retreiving your position..."
+      // });
+      // console.log("0. Getting Lon and Lat.");
+      // navigator.geolocation.watchPosition(
+      //   position => {
+      //     console.log("2 Navigator.geolocation initiated.");
+      //     navigator.geolocation.getCurrentPosition(position => {
+      //       console.log("3. Logged lat and lon.");
+      //       this.lat = position.coords.latitude;
+      //       this.lon = position.coords.longitude;
+      //       console.log("4 Starting getWeatherByCoords Function");
+      //       this.getWeatherByCoords();
+      // this.$axios(
+      //   `${this.apiUrl}?lat=${this.lat}&lon=${this.lon}&appid=${this.apiKey}&units=metric`
+      // )
+      // .then(response => {
+      //   console.log('2. Sent request.');
+      //   this.weatherData = response.data;
+      //   this.location = this.weatherData.name;
+      //   this.weatherDesc = this.weatherData.weather[0].description;
+      //   this.temp = Math.round(this.weatherData.main.temp);
+      //   this.timeZone = this.weatherData.timezone;
+      //   console.log('3. Checking local time.');
+      //   const time = new Date();
+      //   const localTime = time.getTime();
+      //   const localOffset = time.getTimezoneOffset() * 60000;
+      //   const utc = localTime + localOffset;
+      //   const searchedLocationTime = utc + 1000 * this.timeZone;
+      //   const locationTime = new Date(searchedLocationTime);
+      //   this.timeInfo = locationTime;
+      //   this.imgCode = this.weatherData.weather[0].icon;
+      //   this.imgUrl = `http://openweathermap.org/img/wn/${this.imgCode}@2x.png`;
+      //   console.log('4. Function complete.');
+      //   this.$q.loading.hide();
+      //   this.entered = true;
+      // })
+      // .catch(error => {
+      //   if (error.response) {
+      //     console.log("1 " + error.response.data);
+      //     console.log("2 " + error.response.status);
+      //     console.log("3 " + error.response.headers);
+      //     this.error = true;
+      //     this.entered = true;
+      //   } else if (error.request) {
+      //     this.error = true;
+      //     console.log("4 " + error.request);
+      //   } else {
+      //     this.error = true;
+      //     console.log("Error", error.message);
+      //   }
+      //   this.error = true;
+      //   this.entered = true;
+      //   console.log("5 " + error.config);
+      // });
+      // });
+      // }
+      // error => {
+      //   if (error.code == error.PERMISSION_DENIED)
+      //   this.$q.loading.hide();
+      //   this.locationOff = true;
+      //   this.requestSent = false;
+      //   this.entered = true;
+      // }
+      // );
       // navigator.geolocation.getCurrentPosition(position => {
       //   this.lat = position.coords.latitude;
       //   this.lon = position.coords.longitude;
@@ -162,54 +200,69 @@ export default {
       //   this.getWeatherByCoords();
       // });
     },
-    // getWeatherByCoords() {
-    //   this.$q.loading.show();
-    //   this.$axios(
-    //     `${this.apiUrl}?lat=${this.lat}&lon=${this.lon}&appid=${this.apiKey}&units=metric`
-    //   )
-    //     .then(response => {
-    //       this.weatherData = response.data;
-    //       this.location = this.weatherData.name;
-    //       this.weatherDesc = this.weatherData.weather[0].description;
-    //       this.temp = Math.round(this.weatherData.main.temp);
-    //       this.timeZone = this.weatherData.timezone;
-    //       const time = new Date();
-    //       const localTime = time.getTime();
-    //       const localOffset = time.getTimezoneOffset() * 60000;
-    //       const utc = localTime + localOffset;
-    //       const searchedLocationTime = utc + 1000 * this.timeZone;
-    //       const locationTime = new Date(searchedLocationTime);
-    //       this.timeInfo = locationTime;
-    //       this.imgCode = this.weatherData.weather[0].icon;
-    //       this.imgUrl = `http://openweathermap.org/img/wn/${this.imgCode}@2x.png`;
-    //       this.$q.loading.hide();
-    //       this.entered = true;
-    //     })
-    //     .catch(error => {
-    //       if (error.response) {
-    //         console.log("1 " + error.response.data);
-    //         console.log("2 " + error.response.status);
-    //         console.log("3 " + error.response.headers);
-    //         this.error = true;
-    //         this.entered = true;
-    //         // this.error = true;
-    //       } else if (error.request) {
-    //         this.error = true;
-    //         console.log("4 " + error.request);
-    //       } else {
-    //         this.error = true;
-    //         console.log("Error", error.message);
-    //       }
-    //       this.error = true;
-    //       this.entered = true;
-    //       console.log("5 " + error.config);
-    //     });
-    // },
+    getWeatherByCoords() {
+      this.$q.loading.show({
+        message: "Retreiving the current weather forecast..."
+      });
+      this.timer = setTimeout(() => {
+        this.$q.loading.hide();
+        this.timer = void 0;
+      }, 2000);
+      console.log("1. Initiated getWeatherByCoords Function");
+      this.$axios(
+        `${this.apiUrl}?lat=${this.lat}&lon=${this.lon}&appid=${this.apiKey}&units=metric`
+      )
+        .then(response => {
+          console.log("6. Initiated response");
+          this.weatherData = response.data;
+          this.location = this.weatherData.name;
+          this.weatherDesc = this.weatherData.weather[0].description;
+          this.temp = Math.round(this.weatherData.main.temp);
+          this.timeZone = this.weatherData.timezone;
+          const time = new Date();
+          const localTime = time.getTime();
+          const localOffset = time.getTimezoneOffset() * 60000;
+          const utc = localTime + localOffset;
+          const searchedLocationTime = utc + 1000 * this.timeZone;
+          const locationTime = new Date(searchedLocationTime);
+          this.timeInfo = locationTime;
+          this.imgCode = this.weatherData.weather[0].icon;
+          this.imgUrl = `http://openweathermap.org/img/wn/${this.imgCode}@2x.png`;
+          this.$q.loading.hide();
+          this.entered = true;
+          console.log("7. Retrieved response");
+        })
+        .catch(error => {
+          if (error.response) {
+            console.log("1 " + error.response.data);
+            console.log("2 " + error.response.status);
+            console.log("3 " + error.response.headers);
+            this.error = true;
+            this.entered = true;
+            // this.error = true;
+          } else if (error.request) {
+            this.error = true;
+            console.log("4 " + error.request);
+          } else {
+            this.error = true;
+            console.log("Error", error.message);
+          }
+          this.error = true;
+          this.entered = true;
+          console.log("5 " + error.config);
+        });
+    },
     getWeatherBySearch() {
+      this.$q.loading.show({
+        message: "Retreiving weather data..."
+      });
+      this.timer = setTimeout(() => {
+        this.$q.loading.hide();
+        this.timer = void 0;
+      }, 500);
       this.error = false;
       this.requestSent = true;
       this.locationOff = false;
-      this.isLoading = true;
       this.$axios(
         `https://api.openweathermap.org/data/2.5/weather?q=${this.search}&appid=${this.apiKey}&units=metric`,
         { timeout: 2000 }
@@ -230,7 +283,7 @@ export default {
           const locationTime = new Date(searchedLocationTime);
           this.timeInfo = locationTime;
           this.search = "";
-          this.isLoading = false;
+          // this.isLoading = false;
         })
         .catch(error => {
           if (error.response) {
