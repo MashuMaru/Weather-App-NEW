@@ -99,7 +99,7 @@ export default {
     enterGetCoords() {
       navigator.geolocation.clearWatch(1);
       this.$q.loading.show({
-        message: "Retreiving your location..."
+        message: "Retrieving your location..."
       });
       console.log("Getting lat and lon. (1st script)");
       navigator.geolocation.watchPosition(
@@ -121,7 +121,7 @@ export default {
     },
     getWeatherByCoords() {
       this.$q.loading.show({
-        message: "Retreiving the current weather forecast..."
+        message: "Retrieving the current weather forecast..."
       });
       this.timer = setTimeout(() => {
         this.$q.loading.hide();
@@ -172,7 +172,7 @@ export default {
     },
     getWeatherBySearch() {
       this.$q.loading.show({
-        message: "Retreiving weather data..."
+        message: "Retrieving weather data..."
       });
       this.timer = setTimeout(() => {
         this.$q.loading.hide();
