@@ -113,92 +113,11 @@ export default {
         error => {
           if (error.code == error.PERMISSION_DENIED)
             console.log("you denied me :-(");
-            this.$q.loading.hide();
-            this.entered = true;
-            this.locationOff = true;
+          this.$q.loading.hide();
+          this.entered = true;
+          this.locationOff = true;
         }
       );
-      // this.$q.loading.show({
-      //   message: "Retreiving your position..."
-      // });
-      // navigator.geolocation.getCurrentPosition(position => {
-      //   this.lat = position.coords.latitude;
-      //   this.lon = position.coords.longitude;
-      //   this.entered = true;
-      //   this.getWeatherByCoords();
-      // })
-
-      // this.$q.loading.show({
-      //   message: "Retreiving your position..."
-      // });
-      // console.log("0. Getting Lon and Lat.");
-      // navigator.geolocation.watchPosition(
-      //   position => {
-      //     console.log("2 Navigator.geolocation initiated.");
-      //     navigator.geolocation.getCurrentPosition(position => {
-      //       console.log("3. Logged lat and lon.");
-      //       this.lat = position.coords.latitude;
-      //       this.lon = position.coords.longitude;
-      //       console.log("4 Starting getWeatherByCoords Function");
-      //       this.getWeatherByCoords();
-      // this.$axios(
-      //   `${this.apiUrl}?lat=${this.lat}&lon=${this.lon}&appid=${this.apiKey}&units=metric`
-      // )
-      // .then(response => {
-      //   console.log('2. Sent request.');
-      //   this.weatherData = response.data;
-      //   this.location = this.weatherData.name;
-      //   this.weatherDesc = this.weatherData.weather[0].description;
-      //   this.temp = Math.round(this.weatherData.main.temp);
-      //   this.timeZone = this.weatherData.timezone;
-      //   console.log('3. Checking local time.');
-      //   const time = new Date();
-      //   const localTime = time.getTime();
-      //   const localOffset = time.getTimezoneOffset() * 60000;
-      //   const utc = localTime + localOffset;
-      //   const searchedLocationTime = utc + 1000 * this.timeZone;
-      //   const locationTime = new Date(searchedLocationTime);
-      //   this.timeInfo = locationTime;
-      //   this.imgCode = this.weatherData.weather[0].icon;
-      //   this.imgUrl = `http://openweathermap.org/img/wn/${this.imgCode}@2x.png`;
-      //   console.log('4. Function complete.');
-      //   this.$q.loading.hide();
-      //   this.entered = true;
-      // })
-      // .catch(error => {
-      //   if (error.response) {
-      //     console.log("1 " + error.response.data);
-      //     console.log("2 " + error.response.status);
-      //     console.log("3 " + error.response.headers);
-      //     this.error = true;
-      //     this.entered = true;
-      //   } else if (error.request) {
-      //     this.error = true;
-      //     console.log("4 " + error.request);
-      //   } else {
-      //     this.error = true;
-      //     console.log("Error", error.message);
-      //   }
-      //   this.error = true;
-      //   this.entered = true;
-      //   console.log("5 " + error.config);
-      // });
-      // });
-      // }
-      // error => {
-      //   if (error.code == error.PERMISSION_DENIED)
-      //   this.$q.loading.hide();
-      //   this.locationOff = true;
-      //   this.requestSent = false;
-      //   this.entered = true;
-      // }
-      // );
-      // navigator.geolocation.getCurrentPosition(position => {
-      //   this.lat = position.coords.latitude;
-      //   this.lon = position.coords.longitude;
-      //   this.entered = true;
-      //   this.getWeatherByCoords();
-      // });
     },
     getWeatherByCoords() {
       this.$q.loading.show({
@@ -239,7 +158,6 @@ export default {
             console.log("3 " + error.response.headers);
             this.error = true;
             this.entered = true;
-            // this.error = true;
           } else if (error.request) {
             this.error = true;
             console.log("4 " + error.request);
@@ -283,7 +201,6 @@ export default {
           const locationTime = new Date(searchedLocationTime);
           this.timeInfo = locationTime;
           this.search = "";
-          // this.isLoading = false;
         })
         .catch(error => {
           if (error.response) {
