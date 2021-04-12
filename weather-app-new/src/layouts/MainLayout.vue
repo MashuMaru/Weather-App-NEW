@@ -226,11 +226,13 @@ export default {
   background: -webkit-linear-gradient(to top, #71B280, #134E5E)
   background: linear-gradient(to top, #71B280, #134E5E)
   &.bg-night
+    // background-image: url('../css/images/night.jpeg')
     background: #283048
     background: -webkit-linear-gradient(to top, #283048, #859398)
     background: linear-gradient(to top, #283048, #859398)
 
   &.bg-day
+    // background-image: url('../css/images/day.jpeg')
     background: #FF5F6D
     background: -webkit-linear-gradient(to bottom, #FFC371, #FF5F6D)
     background: linear-gradient(to bottom, #FFC371, #FF5F6D)
@@ -268,6 +270,7 @@ export default {
   position: fixed
   height: 150px
   bottom: 0
+  // color: white
 
 .h6
   margin: 0
