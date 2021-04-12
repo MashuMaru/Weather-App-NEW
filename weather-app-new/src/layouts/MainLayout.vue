@@ -32,7 +32,7 @@
             <p>There seems to be an error.<br />Try again.</p>
           </div>
           <div v-if="!locationOff">
-            <h4 class="location">{{ location }}</h4>
+            <h4 class="location">{{ location }}, {{ country }}</h4>
             <h3 class="temp">{{ temp }}&deg;C</h3>
             <h5 class="weather-desc">{{ weatherDesc }}</h5>
             <img class="weather-img" v-bind:src="imgUrl" alt="weather" />
@@ -67,6 +67,7 @@ export default {
       search: "",
       entered: false,
       locationOff: null,
+      country: null,
       error: null,
       lat: null,
       lon: null,
@@ -131,6 +132,7 @@ export default {
           console.log("6. Initiated response");
           this.weatherData = response.data;
           this.location = this.weatherData.name;
+          this.country = this.weatherData.sys.country;
           this.weatherDesc = this.weatherData.weather[0].description;
           this.temp = Math.round(this.weatherData.main.temp);
           this.timeZone = this.weatherData.timezone;
@@ -184,6 +186,7 @@ export default {
         .then(response => {
           this.weatherData = response.data;
           this.location = this.weatherData.name;
+          this.country = this.weatherData.sys.country;
           this.weatherDesc = this.weatherData.weather[0].description;
           this.temp = Math.round(this.weatherData.main.temp);
           this.imgCode = this.weatherData.weather[0].icon;
