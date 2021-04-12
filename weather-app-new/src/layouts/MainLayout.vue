@@ -97,12 +97,11 @@ export default {
   },
   methods: {
     enterGetCoords() {
-      navigator.geolocation.clearWatch(1);
       this.$q.loading.show({
         message: "Retrieving location data..."
       });
       console.log("Getting lat and lon. (1st script)");
-      navigator.geolocation.watchPosition(
+      navigator.geolocation.getCurrentPosition(
         position => {
           this.lat = position.coords.latitude;
           this.lon = position.coords.longitude;
@@ -110,8 +109,7 @@ export default {
           this.getWeatherByCoords();
         },
         error => {
-          if (error.code == error.PERMISSION_DENIED)
-          this.$q.loading.hide();
+          if (error.code == error.PERMISSION_DENIED) this.$q.loading.hide();
           this.entered = true;
           this.locationOff = true;
         }
