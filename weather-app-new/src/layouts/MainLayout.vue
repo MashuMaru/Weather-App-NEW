@@ -102,7 +102,6 @@ export default {
       this.$q.loading.show({
         message: "Retrieving location data..."
       });
-      console.log("Getting lat and lon. (1st script)");
       navigator.geolocation.getCurrentPosition(
         position => {
           this.lat = position.coords.latitude;
@@ -126,12 +125,10 @@ export default {
         this.$q.loading.hide();
         this.timer = void 0;
       }, 2000);
-      console.log("1. Initiated getWeatherByCoords Function");
       this.$axios(
         `${this.apiUrl}?lat=${this.lat}&lon=${this.lon}&appid=${this.apiKey}&units=metric`
       )
         .then(response => {
-          console.log("6. Initiated response");
           this.weatherData = response.data;
           this.location = this.weatherData.name;
           this.country = this.weatherData.sys.country;
@@ -150,25 +147,24 @@ export default {
           this.$q.loading.hide();
           this.isLoaded = true;
           this.entered = true;
-          console.log("7. Retrieved response");
         })
         .catch(error => {
           if (error.response) {
-            console.log("1 " + error.response.data);
-            console.log("2 " + error.response.status);
-            console.log("3 " + error.response.headers);
+            // console.log("1 " + error.response.data);
+            // console.log("2 " + error.response.status);
+            // console.log("3 " + error.response.headers);
             this.error = true;
             this.entered = true;
           } else if (error.request) {
             this.error = true;
-            console.log("4 " + error.request);
+            // console.log("4 " + error.request);
           } else {
             this.error = true;
-            console.log("Error", error.message);
+            // console.log("Error", error.message);
           }
           this.error = true;
           this.entered = true;
-          console.log("5 " + error.config);
+          // console.log("5 " + error.config);
         });
     },
     getWeatherBySearch() {
@@ -208,20 +204,20 @@ export default {
         })
         .catch(error => {
           if (error.response) {
-            console.log("1 " + error.response.data);
-            console.log("2 " + error.response.status);
-            console.log("3 " + error.response.headers);
+            // console.log("1 " + error.response.data);
+            // console.log("2 " + error.response.status);
+            // console.log("3 " + error.response.headers);
             this.error = true;
           } else if (error.request) {
             this.error = true;
-            console.log("4 " + error.request);
+            // console.log("4 " + error.request);
           } else {
             this.error = true;
-            console.log("Error", error.message);
+            // console.log("Error", error.message);
           }
           this.error = true;
           this.entered = true;
-          console.log("5 " + error.config);
+          // console.log("5 " + error.config);
         });
     }
   }
