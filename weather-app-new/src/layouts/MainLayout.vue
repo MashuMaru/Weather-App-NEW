@@ -31,7 +31,7 @@
           <div v-if="error">
             <p>There seems to be an error.<br />Try again.</p>
           </div>
-          <div v-if="!locationOff">
+          <div v-if="!locationOff && isLoaded">
             <h4 class="location">{{ location }}, {{ country }}</h4>
             <h3 class="temp">{{ temp }}&deg;C</h3>
             <h5 class="weather-desc">{{ weatherDesc }}</h5>
@@ -42,12 +42,12 @@
         </div>
       </div>
       <div v-else class="main-title">
-        <h2 class="text-weight-light">
+        <h3 class="text-weight-medium">
           Weather<br />App
           <span class="material-icons">
             thermostat
           </span>
-        </h2>
+        </h3>
       </div>
     </div>
 
@@ -67,6 +67,7 @@ export default {
       search: "",
       entered: false,
       locationOff: null,
+      isLoaded: null,
       country: null,
       error: null,
       lat: null,
@@ -117,6 +118,7 @@ export default {
       );
     },
     getWeatherByCoords() {
+      this.isLoaded = false;
       this.$q.loading.show({
         message: "Retrieving the current weather forecast..."
       });
@@ -146,6 +148,7 @@ export default {
           this.imgCode = this.weatherData.weather[0].icon;
           this.imgUrl = `http://openweathermap.org/img/wn/${this.imgCode}@2x.png`;
           this.$q.loading.hide();
+          this.isLoaded = true;
           this.entered = true;
           console.log("7. Retrieved response");
         })
@@ -169,6 +172,7 @@ export default {
         });
     },
     getWeatherBySearch() {
+      this.isLoaded = false;
       this.$q.loading.show({
         message: "Retrieving weather data..."
       });
@@ -199,6 +203,7 @@ export default {
           const searchedLocationTime = utc + 1000 * this.timeZone;
           const locationTime = new Date(searchedLocationTime);
           this.timeInfo = locationTime;
+          this.isLoaded = true;
           this.search = "";
         })
         .catch(error => {
